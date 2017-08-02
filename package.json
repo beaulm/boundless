@@ -1,10 +1,22 @@
 {
 	"name": "boundless",
 	"version": "0.0.0",
+	"description": "A simple url shortening REST api",
 	"private": true,
+	"repository": {
+		"type": "git",
+		"url": "git+ssh://git@github.com/beaulm/boundless.git"
+	},
+	"author": "Beau Lynn-Miller",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/beaulm/boundless/issues"
+	},
+	"homepage": "https://github.com/beaulm/boundless#readme",
 	"scripts": {
 		"eslint": "./node_modules/.bin/eslint ./routes/*.js",
-		"start": "node ./bin/www"
+		"start": "node ./bin/www",
+		"test": "./node_modules/.bin/_mocha"
 	},
 	"dependencies": {
 		"body-parser": "~1.17.1",
@@ -13,6 +25,8 @@
 		"morgan": "~1.8.1"
 	},
 	"devDependencies": {
-		"eslint": "^4.3.0"
+		"eslint": "^4.3.0",
+		"mocha": "^3.5.0",
+		"request": "^2.81.0"
 	}
 }

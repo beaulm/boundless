@@ -44,7 +44,7 @@ All requests and responses should be in JSON, and all responses will contain the
 *   URL: `/api/v1/`
 *   Method: `PUT`
 *   Params: `key` (required), `name` (requried), `url` (optional), `secondsUntilExpiration` (optional)
-*   Response: Whatever what changed (either the `url` or the `secondsUntilExpiration`)
+*   Response: Whatever changed (either the `url` or the `secondsUntilExpiration`)
 
 `key` is the secret key you received when creating the url.  
 `name` is the short code which maps to your url.  

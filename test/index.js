@@ -113,6 +113,40 @@ describe('API', function() {
 		});
 	});
 
+	//Try to create a shortened url with no expiration date
+	it('should create a shortened url with no expiration date when passed 0 for secondsUntilExpiration', function(done) {
+		const options = {
+			method: 'POST',
+			form: {
+				url: 'http://lynn-miller.com/',
+				secondsUntilExpiration: 0
+			},
+			url: 'http://localhost:3000/api/v1/'
+		};
+
+		request(options, function(error, response, body) {
+			if (error) throw new Error(error);
+
+			const {httpCode, name, secondsUntilExpiration, key} = JSON.parse(body);
+			assert.equal(httpCode,200);
+			assert.equal(name.length, 6);
+			assert.equal(key.length, 36);
+			assert.equal(secondsUntilExpiration, 0);
+
+			options.method = 'GET';
+			delete options.qs;
+			options.url = 'http://localhost:3000/api/v1/'+name;
+
+			request(options, function(error, response, body) {
+				if (error) throw new Error(error);
+
+				assert.equal(response.request.uri.href, 'http://lynn-miller.com/');
+
+				done();
+			});
+		});
+	});
+
 	//Try to create a shortened url with a custom name
 	it('should create a shortened url with a custom name', function(done) {
 		const options = {

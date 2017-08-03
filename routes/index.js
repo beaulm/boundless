@@ -70,9 +70,17 @@ router.post('/', (req, res) => {
 			secondsUntilExpiration = 604800;
 		}
 
-		//Calculate the expiration date based on the secondsUntilExpiration
-		let expirationDate = new Date();
-		expirationDate.setSeconds(expirationDate.getSeconds() + secondsUntilExpiration);
+		let expirationDate = null;
+		//If the user wants the url to last forever
+		if(req.body.secondsUntilExpiration && req.body.secondsUntilExpiration === '0') {
+			//Just use the maximum date
+			expirationDate = new Date('9999-01-01T01:01:01');
+		}
+		else {
+			//Calculate the expiration date based on the secondsUntilExpiration
+			expirationDate = new Date();
+			expirationDate.setSeconds(expirationDate.getSeconds() + secondsUntilExpiration);
+		}
 
 		//Generate a secret key for this record
 		const key = uuidv4();

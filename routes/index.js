@@ -43,8 +43,8 @@ router.post('/', (req, res) => {
 					return res.status(400).send({httpCode: 400, message: 'Sorry, that name is already taken'});
 				}
 			}
-			catch(e) {
-				console.log(e);
+			catch(error) {
+				console.log(error);
 			}
 
 			//Use it!
@@ -118,7 +118,7 @@ router.get('/:name', (req, res) => {
 		try {
 			urlRecord = await db.collection('urls').find({'expirationDate': {$gte: new Date()}, 'name': req.params.name}).sort({_id: -1}).limit(1).next();
 
-			db.collection('urls').update({'name': req.params.name}, {$set: {lastUsed: new Date()}, $inc: {hits: 1}});
+			db.collection('urls').update({'name': req.params.name}, {$inc: {hits: 1}, $set: {lastUsed: new Date()}});
 
 			//Redirect the user to the corresponding url
 			return res.redirect(307, urlRecord.url);

@@ -2,7 +2,7 @@
 A sample url shortener
 
 ### Requirements
-The latest version of `node.js` is required for this snazzy new URL shortener.
+The latest version of `node.js` is required for this snazzy new URL shortener. Check out [nvm](https://github.com/creationix/nvm) for managing node version.
 
 ### Installation
 *   Install MongoDB server

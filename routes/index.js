@@ -141,12 +141,12 @@ router.get('/:name', (req, res) => {
 			urlRecord = await db.collection('urls').find({'expirationDate': {$gte: new Date()}, 'name': req.params.name}).sort({_id: -1}).limit(1).next();
 
 			//If they included a key and it matches the one on the record we found
-			if(req.query.key && urlRecord.key === req.query.key)  {
+			if(req.query.key && urlRecord.key === req.query.key) {
 				//Return info about the url
 				return res.status(200).send({
-					httpCode: 200,
 					expirationDate: urlRecord.expirationDate,
 					hits: urlRecord.hits,
+					httpCode: 200,
 					lastUsed: urlRecord.lastUsed,
 					url: urlRecord.url
 				});

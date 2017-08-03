@@ -210,6 +210,28 @@ describe('API', function() {
 		});
 	});
 
+	//Try to get information about the original url from the shortened url
+	it('should return information about the original url from the shortened one', function(done) {
+		const options = {
+			method: 'GET',
+			qs: { key: accesskey },
+			url: 'http://localhost:3000/api/v1/beau'
+		};
+
+		request(options, function(error, response, body) {
+			if (error) throw new Error(error);
+
+			const {httpCode, url, expirationDate, hits, lastUsed} = JSON.parse(body);
+			assert.equal(httpCode, 200);
+			assert.equal(url, 'http://lynn-miller.com/');
+			assert.notEqual(Date.parse(expirationDate), NaN);
+			assert.notEqual(Date.parse(lastUsed), NaN);
+			assert.equal(hits, 1);
+
+			done();
+		});
+	});
+
 	//Try to update the shortened url
 	it('should update the url when supplied the key', function(done) {
 		let options = {

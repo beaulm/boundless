@@ -124,6 +124,9 @@ router.get('/:name', (req, res) => {
 	//Make sure the request actually has a name
 	req.checkParams('name', 'Invalid url parameter').notEmpty().matches(/^[a-z0-9-]+$/);
 
+	//Make sure the request contains a valid key
+	req.checkQuery('key', 'Invalid key').optional().isUUID(4);
+
 	//Get any validation errors
 	req.getValidationResult().then(async (result) => {
 		//If there were any errors
@@ -136,6 +139,18 @@ router.get('/:name', (req, res) => {
 		let urlRecord = null;
 		try {
 			urlRecord = await db.collection('urls').find({'expirationDate': {$gte: new Date()}, 'name': req.params.name}).sort({_id: -1}).limit(1).next();
+
+			//If they included a key and it matches the one on the record we found
+			if(req.query.key && urlRecord.key === req.query.key)  {
+				//Return info about the url
+				return res.status(200).send({
+					httpCode: 200,
+					expirationDate: urlRecord.expirationDate,
+					hits: urlRecord.hits,
+					lastUsed: urlRecord.lastUsed,
+					url: urlRecord.url
+				});
+			}
 
 			//Update the lastUsed parameter and increment the hit count
 			db.collection('urls').update({'name': req.params.name}, {$inc: {hits: 1}, $set: {lastUsed: new Date()}});

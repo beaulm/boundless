@@ -103,9 +103,9 @@ describe('API', function() {
 		request(options, function(error, response, body) {
 			if (error) throw new Error(error);
 
-			const {httpCode, message, secondsUntilExpiration, key} = JSON.parse(body);
+			const {httpCode, name, secondsUntilExpiration, key} = JSON.parse(body);
 			assert.equal(httpCode,200);
-			assert.equal(message.length, 6);
+			assert.equal(name.length, 6);
 			assert.equal(key.length, 36);
 			assert.equal(secondsUntilExpiration, 604800);
 
@@ -127,9 +127,9 @@ describe('API', function() {
 		request(options, function(error, response, body) {
 			if (error) throw new Error(error);
 
-			const {httpCode, message, key, secondsUntilExpiration} = JSON.parse(body);
+			const {httpCode, name, key, secondsUntilExpiration} = JSON.parse(body);
 			assert.equal(httpCode, 200);
-			assert.equal(message, 'beau');
+			assert.equal(name, 'beau');
 			assert.equal(key.length, 36);
 			assert.equal(secondsUntilExpiration, 604800);
 			accesskey = key;
@@ -297,15 +297,15 @@ describe('API', function() {
 		request(options, function(error, response, body) {
 			if (error) throw new Error(error);
 
-			const {httpCode, message} = JSON.parse(body);
+			const {httpCode, name} = JSON.parse(body);
 			assert.equal(httpCode, 200);
-			assert.equal(message.length, 6);
+			assert.equal(name.length, 6);
 
 			//Make sure the url expired in time
 			setTimeout(function() {
 				options.method = 'GET';
 				delete options.qs;
-				options.url = 'http://localhost:3000/api/v1/'+message;
+				options.url = 'http://localhost:3000/api/v1/'+name;
 
 				request(options, function(error, response, body) {
 					if (error) throw new Error(error);

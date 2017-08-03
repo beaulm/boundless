@@ -95,7 +95,7 @@ router.post('/', (req, res) => {
 		return res.status(200).send({
 			httpCode: 200,
 			key,
-			message: name,
+			name,
 			secondsUntilExpiration
 		});
 	});

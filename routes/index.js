@@ -81,7 +81,9 @@ router.post('/', (req, res) => {
 		try {
 			await db.collection('urls').insert({
 				expirationDate,
+				hits: 0,
 				key,
+				lastUsed: new Date(),
 				name,
 				url: req.body.url
 			});
@@ -115,6 +117,8 @@ router.get('/:name', (req, res) => {
 		let urlRecord = null;
 		try {
 			urlRecord = await db.collection('urls').find({'expirationDate': {$gte: new Date()}, 'name': req.params.name}).sort({_id: -1}).limit(1).next();
+
+			db.collection('urls').update({'name': req.params.name}, {$set: {lastUsed: new Date()}, $inc: {hits: 1}});
 
 			//Redirect the user to the corresponding url
 			return res.redirect(307, urlRecord.url);

@@ -1,6 +1,9 @@
 # Boundless
 A sample url shortener
 
+### Requirements
+The latest version of `node.js` is required for this snazzy new URL shortener.
+
 ### Installation
 *   Install MongoDB server
 *   Create a `boundless` collection in Mongo

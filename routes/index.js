@@ -35,7 +35,19 @@ router.post('/', (req, res) => {
 
 		//If the user supplied a name
 		if(req.body.name) {
-			//Use that
+			try {
+				let result = await db.collection('urls').findOne({'name': req.body.name});
+				//If that name is already taken
+				if(result !== null) {
+					//Return an error
+					return res.status(400).send({httpCode: 400, message: 'Sorry, that name is already taken'});
+				}
+			}
+			catch(e) {
+				console.log(e);
+			}
+
+			//Use it!
 			name = req.body.name;
 		}
 		//Otherwise

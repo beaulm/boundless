@@ -138,6 +138,28 @@ describe('API', function() {
 		});
 	});
 
+	//Try to reuse the same custom name
+	it('should not allow me to use the same custom name twice', function(done) {
+		const options = {
+			method: 'POST',
+			form: {
+				name: 'beau',
+				url: 'http://lynn-miller.com/',
+			},
+			url: 'http://localhost:3000/api/v1/'
+		};
+
+		request(options, function(error, response, body) {
+			if (error) throw new Error(error);
+
+			const {httpCode, message, key, secondsUntilExpiration} = JSON.parse(body);
+			assert.equal(httpCode, 400);
+			assert.equal(message, 'Sorry, that name is already taken');
+
+			done();
+		});
+	});
+
 	//Try to get the original url from the shortened url
 	it('should return the original url from the shortened one', function(done) {
 		const options = {

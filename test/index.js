@@ -9,7 +9,7 @@ describe('API', function() {
 	it('shouldn\'t create a shortened url with insufficient data', function(done) {
 		const options = {
 			method: 'POST',
-			qs: {},
+			form: {},
 			url: 'http://localhost:3000/api/v1/'
 		};
 
@@ -17,8 +17,74 @@ describe('API', function() {
 			if (error) throw new Error(error);
 
 			const {httpCode, message} = JSON.parse(body);
-			assert.equal(400, httpCode);
-			assert.equal('Insufficient data', message);
+			assert.equal(httpCode, 400);
+			assert.equal(message, 'Request must contain a valid url');
+
+			done();
+		});
+	});
+
+	//Try to create a url with a bad name
+	it('shouldn\'t create a shortened url with a bad name', function(done) {
+		const options = {
+			method: 'POST',
+			form: {
+				name: '*Bad',
+				url: 'http://lynn-miller.com/'
+			},
+			url: 'http://localhost:3000/api/v1/'
+		};
+
+		request(options, function(error, response, body) {
+			if (error) throw new Error(error);
+
+			const {httpCode, message} = JSON.parse(body);
+			assert.equal(httpCode, 400);
+			assert.equal(message, 'The name parameter, which is optional, may only contain lowercase letters, numbers, and hyphens');
+
+			done();
+		});
+	});
+
+	//Try to create a url with a bad secondsUntilExpiration
+	it('shouldn\'t create a shortened url with a bad secondsUntilExpiration', function(done) {
+		const options = {
+			method: 'POST',
+			form: {
+				secondsUntilExpiration: 'bad',
+				url: 'http://lynn-miller.com/'
+			},
+			url: 'http://localhost:3000/api/v1/'
+		};
+
+		request(options, function(error, response, body) {
+			if (error) throw new Error(error);
+
+			const {httpCode, message} = JSON.parse(body);
+			assert.equal(httpCode, 400);
+			assert.equal(message, 'The secondsUntilExpiration parameter, which is optional, must be a positive integer');
+
+			done();
+		});
+	});
+
+	//Try to create a url with a negative secondsUntilExpiration
+	it('shouldn\'t create a shortened url with a negative secondsUntilExpiration', function(done) {
+		const options = {
+			method: 'POST',
+			form: {
+				secondsUntilExpiration: -10,
+				url: 'http://lynn-miller.com/'
+			},
+			url: 'http://localhost:3000/api/v1/'
+		};
+
+		request(options, function(error, response, body) {
+			if (error) throw new Error(error);
+
+			const {httpCode, message} = JSON.parse(body);
+			assert.equal(httpCode, 400);
+			assert.equal(message, 'The secondsUntilExpiration parameter, which is optional, must be a positive integer');
 
 			done();
 		});
@@ -28,7 +94,7 @@ describe('API', function() {
 	it('should create a shortened url with proper data', function(done) {
 		const options = {
 			method: 'POST',
-			qs: {
+			form: {
 				url: 'http://lynn-miller.com/'
 			},
 			url: 'http://localhost:3000/api/v1/'
@@ -38,10 +104,10 @@ describe('API', function() {
 			if (error) throw new Error(error);
 
 			const {httpCode, message, secondsUntilExpiration, key} = JSON.parse(body);
-			assert.equal(200, httpCode);
-			assert.equal(6, message.length);
-			assert.equal(64, key.length);
-			assert.equal(604800, secondsUntilExpiration);
+			assert.equal(httpCode,200);
+			assert.equal(message.length, 6);
+			assert.equal(key.length, 36);
+			assert.equal(secondsUntilExpiration, 604800);
 
 			done();
 		});
@@ -51,7 +117,7 @@ describe('API', function() {
 	it('should create a shortened url with a custom name', function(done) {
 		const options = {
 			method: 'POST',
-			qs: {
+			form: {
 				name: 'beau',
 				url: 'http://lynn-miller.com/',
 			},
@@ -61,11 +127,11 @@ describe('API', function() {
 		request(options, function(error, response, body) {
 			if (error) throw new Error(error);
 
-			const {httpCode, message, key} = JSON.parse(body);
-			assert.equal(200, httpCode);
-			assert.equal('beau', message);
-			assert.equal(64, key.length);
-			assert.equal(604800, secondsUntilExpiration);
+			const {httpCode, message, key, secondsUntilExpiration} = JSON.parse(body);
+			assert.equal(httpCode, 200);
+			assert.equal(message, 'beau');
+			assert.equal(key.length, 36);
+			assert.equal(secondsUntilExpiration, 604800);
 			accesskey = key;
 
 			done();
@@ -82,9 +148,7 @@ describe('API', function() {
 		request(options, function(error, response, body) {
 			if (error) throw new Error(error);
 
-			const {httpCode, message} = JSON.parse(body);
-			assert.equal(200, httpCode);
-			assert.equal('http://lynn-miller.com/', message);
+			assert.equal(response.request.uri.href, 'http://lynn-miller.com/');
 
 			done();
 		});
@@ -94,9 +158,10 @@ describe('API', function() {
 	it('should update the url when supplied the key', function(done) {
 		let options = {
 			method: 'PUT',
-			qs: {
+			form: {
 				key: accesskey,
-				url: 'http://dangertravels.com/',
+				name: 'beau',
+				url: 'http://dangertravels.com/about',
 			},
 			url: 'http://localhost:3000/api/v1/'
 		};
@@ -106,13 +171,12 @@ describe('API', function() {
 
 			options.method = 'GET';
 			delete options.qs;
+			options.url = 'http://localhost:3000/api/v1/beau';
 
 			request(options, function(error, response, body) {
 				if (error) throw new Error(error);
 
-				const {httpCode, message} = JSON.parse(body);
-				assert.equal(200, httpCode);
-				assert.equal('http://dangertravels.com/', message);
+				assert.equal(response.request.uri.href, 'http://dangertravels.com/about');
 
 				done();
 			});
@@ -123,8 +187,9 @@ describe('API', function() {
 	it('should return an error when the user tries to update a url without sending enough data', function(done) {
 		const options = {
 			method: 'PUT',
-			qs: {
+			form: {
 				key: accesskey,
+				name: 'beau'
 			},
 			url: 'http://localhost:3000/api/v1/'
 		};
@@ -133,8 +198,8 @@ describe('API', function() {
 			if (error) throw new Error(error);
 
 			const {httpCode, message} = JSON.parse(body);
-			assert.equal(400, httpCode);
-			assert.equal('Please provide either a url, an expiration time, or both', message);
+			assert.equal(httpCode, 400);
+			assert.equal(message, 'You must include either a url or a secondsUntilExpiration with this request');
 
 			done();
 		});
@@ -144,9 +209,10 @@ describe('API', function() {
 	it('should return an error when the user tries to update a url with an invalid key', function(done) {
 		const options = {
 			method: 'PUT',
-			qs: {
-				key: 'fakekey',
-				url: 'http://dangertravels.com/',
+			form: {
+				key: 'fd13237c-83d0-4e6e-80c8-0a0000b00000',
+				name: 'beau',
+				url: 'http://dangertravels.com/about',
 			},
 			url: 'http://localhost:3000/api/v1/'
 		};
@@ -155,8 +221,8 @@ describe('API', function() {
 			if (error) throw new Error(error);
 
 			const {httpCode, message} = JSON.parse(body);
-			assert.equal(401, httpCode);
-			assert.equal('Invalid key', message);
+			assert.equal(httpCode, 400);
+			assert.equal(message, 'Sorry, that name/key combination didn\'t work');
 
 			done();
 		});
@@ -166,8 +232,9 @@ describe('API', function() {
 	it('should delete the shortened url when supplied the key', function(done) {
 		let options = {
 			method: 'DELETE',
-			qs: {
-				key: accesskey
+			form: {
+				key: accesskey,
+				name: 'beau'
 			},
 			url: 'http://localhost:3000/api/v1/'
 		};
@@ -176,8 +243,8 @@ describe('API', function() {
 			if (error) throw new Error(error);
 
 			const {httpCode, message} = JSON.parse(body);
-			assert.equal(200, httpCode);
-			assert.equal('Shortened url deleted', message);
+			assert.equal(httpCode, 200);
+			assert.equal(message, 'Shortened url deleted');
 
 			options.method = 'GET';
 			delete options.qs;
@@ -186,8 +253,8 @@ describe('API', function() {
 			request(options, function(error, response, body) {
 				if (error) throw new Error(error);
 				const {httpCode, message} = JSON.parse(body);
-				assert.equal(404, httpCode);
-				assert.equal('Sorry, there\'s no url with that name', message);
+				assert.equal(httpCode, 404);
+				assert.equal(message, 'Sorry, there\'s no url with that name');
 
 				done();
 			});
@@ -198,8 +265,7 @@ describe('API', function() {
 	it('should be able to create a shortened url with a short lifetime', function(done) {
 		const options = {
 			method: 'POST',
-			qs: {
-				name: 'beau',
+			form: {
 				secondsUntilExpiration: 1,
 				url: 'http://lynn-miller.com/'
 			},
@@ -209,23 +275,22 @@ describe('API', function() {
 		request(options, function(error, response, body) {
 			if (error) throw new Error(error);
 
-			const {httpCode, message, secondsUntilExpiration, key} = JSON.parse(body);
-			assert.equal(200, httpCode);
-			assert.equal(6, message.length);
-			assert.equal(64, key.length);
-			assert.equal(1, secondsUntilExpiration);
+			const {httpCode, message} = JSON.parse(body);
+			assert.equal(httpCode, 200);
+			assert.equal(message.length, 6);
 
 			//Make sure the url expired in time
 			setTimeout(function() {
 				options.method = 'GET';
 				delete options.qs;
-				options.url = 'http://localhost:3000/api/v1/beau';
+				options.url = 'http://localhost:3000/api/v1/'+message;
 
 				request(options, function(error, response, body) {
 					if (error) throw new Error(error);
+
 					const {httpCode, message} = JSON.parse(body);
-					assert.equal(404, httpCode);
-					assert.equal('Sorry, there\'s no url with that name', message);
+					assert.equal(httpCode, 404);
+					assert.equal(message, 'Sorry, there\'s no url with that name');
 
 					done();
 				});
@@ -244,8 +309,8 @@ describe('API', function() {
 			if (error) throw new Error(error);
 
 			const {httpCode, message} = JSON.parse(body);
-			assert.equal(404, httpCode);
-			assert.equal('Sorry, there\'s no url with that name', message);
+			assert.equal(httpCode, 404);
+			assert.equal(message, 'Sorry, there\'s no url with that name');
 
 			done();
 		});
@@ -255,19 +320,20 @@ describe('API', function() {
 	it('should return an error when the user tries to update a url that doesn\'t exist', function(done) {
 		const options = {
 			method: 'PUT',
-			qs: {
+			form: {
 				key: accesskey,
-				url: 'http://dangertravels.com/',
+				name: 'asdf',
+				url: 'http://dangertravels.com/about',
 			},
-			url: 'http://localhost:3000/api/v1/adsf'
+			url: 'http://localhost:3000/api/v1/'
 		};
 
 		request(options, function(error, response, body) {
 			if (error) throw new Error(error);
 
 			const {httpCode, message} = JSON.parse(body);
-			assert.equal(404, httpCode);
-			assert.equal('Sorry, there\'s no url with that name', message);
+			assert.equal(httpCode, 400);
+			assert.equal(message, 'Sorry, that name/key combination didn\'t work');
 
 			done();
 		});
@@ -277,18 +343,19 @@ describe('API', function() {
 	it('should return an error when the user tries to delete a url that doesn\'t exist', function(done) {
 		const options = {
 			method: 'DELETE',
-			qs: {
+			form: {
 				key: accesskey,
+				name: 'asdf'
 			},
-			url: 'http://localhost:3000/api/v1/adsf'
+			url: 'http://localhost:3000/api/v1/'
 		};
 
 		request(options, function(error, response, body) {
 			if (error) throw new Error(error);
 
 			const {httpCode, message} = JSON.parse(body);
-			assert.equal(404, httpCode);
-			assert.equal('Sorry, there\'s no url with that name', message);
+			assert.equal(httpCode, 400);
+			assert.equal(message, 'Sorry, that name/key combination didn\'t work');
 
 			done();
 		});
@@ -298,8 +365,9 @@ describe('API', function() {
 	it('should return an error when the user tries to delete a url with an invalid key', function(done) {
 		const options = {
 			method: 'DELETE',
-			qs: {
-				key: 'fakekey',
+			form: {
+				key: 'fd13237c-83d0-4e6e-80c8-0a0000b00000',
+				name: 'beau'
 			},
 			url: 'http://localhost:3000/api/v1/'
 		};
@@ -308,8 +376,8 @@ describe('API', function() {
 			if (error) throw new Error(error);
 
 			const {httpCode, message} = JSON.parse(body);
-			assert.equal(401, httpCode);
-			assert.equal('Invalid key', message);
+			assert.equal(httpCode, 400);
+			assert.equal(message, 'Sorry, that name/key combination didn\'t work');
 
 			done();
 		});
@@ -319,8 +387,9 @@ describe('API', function() {
 	it('should return an error when the user tries to delete a url that\'s already been deleted', function(done) {
 		const options = {
 			method: 'DELETE',
-			qs: {
+			form: {
 				key: accesskey,
+				name: 'beau'
 			},
 			url: 'http://localhost:3000/api/v1/'
 		};
@@ -329,8 +398,8 @@ describe('API', function() {
 			if (error) throw new Error(error);
 
 			const {httpCode, message} = JSON.parse(body);
-			assert.equal(404, httpCode);
-			assert.equal('Sorry, there\'s no url with that name', message);
+			assert.equal(httpCode, 400);
+			assert.equal(message, 'Sorry, that name/key combination didn\'t work');
 
 			done();
 		});

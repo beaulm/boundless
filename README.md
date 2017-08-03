@@ -5,7 +5,7 @@ A sample url shortener
 The latest version of `node.js` is required for this snazzy new URL shortener. Check out [nvm](https://github.com/creationix/nvm) for managing node version.
 
 ### Installation
-*   Install MongoDB server
+*   Install MongoDB server and start it running on port 27017
 *   Create a `boundless` collection in Mongo
 *   Download or clone this repository
 *   `cd` into the directory you just created

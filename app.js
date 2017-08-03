@@ -7,7 +7,6 @@ const index = require('./routes/index');
 
 let app = express();
 
-// uncomment after placing your favicon in /public
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));

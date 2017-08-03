@@ -3,7 +3,7 @@ const router = express.Router();
 const uuidv4 = require('uuid/v4');
 const MongoClient = require('mongodb').MongoClient;
 
-//Create a new database just for this (no persistence here since this is just a demo)
+//Open a database connection once to be used throughout the lifetime of th app
 let db = null;
 MongoClient.connect('mongodb://localhost:27017/boundless').then((database) => {
 	db = database;
@@ -12,6 +12,7 @@ MongoClient.connect('mongodb://localhost:27017/boundless').then((database) => {
 	process.exit();
 });
 
+//Create / POST
 router.post('/', (req, res) => {
 	//Make sure the request contains a valid url
 	req.checkBody('url', 'Request must contain a valid url').notEmpty().isURL();
@@ -47,13 +48,20 @@ router.post('/', (req, res) => {
 				console.log(error);
 			}
 
-			//Use it!
+			//If we've gotten here, their name is fine to use
 			name = req.body.name;
 		}
 		//Otherwise
 		else {
-			//Generate one
-			name = Math.random().toString(36).slice(2, 8);
+			//Until we pick a unique name
+			let result = 'anything';
+			while(result !== null) {
+				//Generate one
+				name = Math.random().toString(36).slice(2, 8);
+
+				//Check if it's already in the database
+				result = await db.collection('urls').findOne({name});
+			}
 		}
 
 		//Instatniate a secondsUntilExpiration parameter
@@ -76,6 +84,7 @@ router.post('/', (req, res) => {
 			//Just use the maximum date
 			expirationDate = new Date('9999-01-01T01:01:01');
 		}
+		//Otherwise
 		else {
 			//Calculate the expiration date based on the secondsUntilExpiration
 			expirationDate = new Date();
@@ -109,6 +118,8 @@ router.post('/', (req, res) => {
 	});
 });
 
+
+//Read / GET
 router.get('/:name', (req, res) => {
 	//Make sure the request actually has a name
 	req.checkParams('name', 'Invalid url parameter').notEmpty().matches(/^[a-z0-9-]+$/);
@@ -126,6 +137,7 @@ router.get('/:name', (req, res) => {
 		try {
 			urlRecord = await db.collection('urls').find({'expirationDate': {$gte: new Date()}, 'name': req.params.name}).sort({_id: -1}).limit(1).next();
 
+			//Update the lastUsed parameter and increment the hit count
 			db.collection('urls').update({'name': req.params.name}, {$inc: {hits: 1}, $set: {lastUsed: new Date()}});
 
 			//Redirect the user to the corresponding url
@@ -136,6 +148,8 @@ router.get('/:name', (req, res) => {
 	});
 });
 
+
+//Update / PUT
 router.put('/', (req, res) => {
 	//Make sure the request contains a valid key
 	req.checkBody('key', 'Request must contain a valid key').isUUID(4);
@@ -157,7 +171,7 @@ router.put('/', (req, res) => {
 			return res.status(400).send({httpCode: 400, message: result.useFirstErrorOnly().array()[0].msg});
 		}
 
-		//If the request has neither a url or a secondsUntilExpiration
+		//If the request has neither a url nor a secondsUntilExpiration
 		if(!req.body.url && !req.body.secondsUntilExpiration) {
 			//Return an error
 			return res.status(400).send({httpCode: 400, message: 'You must include either a url or a secondsUntilExpiration with this request'});
@@ -172,8 +186,16 @@ router.put('/', (req, res) => {
 			updateParameters.$set.url = req.body.url;
 		}
 
-		//If a secondsUntilExpiration was sent
-		if(req.body.secondsUntilExpiration) {
+		//If the user wants the url to last forever
+		if(req.body.secondsUntilExpiration && req.body.secondsUntilExpiration === '0') {
+			//Just use the maximum date
+			let expirationDate = new Date('9999-01-01T01:01:01');
+
+			//Add it to the update object
+			updateParameters.$set.expirationDate = expirationDate;
+		}
+		//Otherwise if they still want to update the expiration date
+		else if(req.body.secondsUntilExpiration) {
 			//Calculate the new expiration date
 			let expirationDate = new Date();
 			expirationDate.setSeconds(expirationDate.getSeconds() + parseInt(req.body.secondsUntilExpiration, 10));
@@ -201,6 +223,8 @@ router.put('/', (req, res) => {
 	});
 });
 
+
+//Delete / DELETE
 router.delete('/', (req, res) => {
 	//Make sure the request contains a valid key
 	req.checkBody('key', 'Request must contain a valid key').isUUID(4);
@@ -216,7 +240,7 @@ router.delete('/', (req, res) => {
 			return res.status(400).send({httpCode: 400, message: result.useFirstErrorOnly().array()[0].msg});
 		}
 
-		//Try to update records based on the supplied name/key combination
+		//Try to delete the record based on the supplied name/key combination
 		let urlRecord = null;
 		try {
 			urlRecord = await db.collection('urls').removeOne({'key': req.body.key, 'name': req.body.name});

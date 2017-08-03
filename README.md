@@ -43,7 +43,7 @@ All requests and responses should be in JSON, and all responses will contain the
 #### Update
 *   URL: `/api/v1/`
 *   Method: `PUT`
-*   Params: `key` (required), `name` (requried), `url` (optional), `secondsUntilExpiration` (optional)
+*   Params: `key` (required), `name` (required), `url` (optional), `secondsUntilExpiration` (optional)
 *   Response: Whatever changed (either the `url` or the `secondsUntilExpiration`)
 
 `key` is the secret key you received when creating the url.  
@@ -55,5 +55,5 @@ All requests and responses should be in JSON, and all responses will contain the
 #### Delete
 *   URL: `/api/v1/`
 *   Method: `DELETE`
-*   Params: `key` (required), `name` (requried)
+*   Params: `key` (required), `name` (required)
 *   Response: `message` containing the result of the action

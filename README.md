@@ -12,6 +12,9 @@ The latest version of `node.js` is required for this snazzy new URL shortener. C
 *   `npm install`
 *   `npm start`
 
+### Testing
+`npm test` will run all the integration tests.
+
 ### API
 
 All requests and responses should be in JSON, and all responses will contain the HTTP status code of the response in the message body.

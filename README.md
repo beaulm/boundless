@@ -37,10 +37,10 @@ All requests and responses should be in JSON, and all responses will contain the
 *   URL: `/api/v1/{name}`
 *   Method: `GET`
 *   Params: `key` (optional)
-*   Response: A redirect to the original url
+*   Response: A redirect to the original url OR information about the shortened url
 
 `name` is the short code which you got from Create.  
-If a `key` is supplied you will receive information about the shortened url (`httpCode`, `url`, `hits`, `expirationDate`, `lastUsed`), otherwise you will simply be redirected to the original url.
+If a `key` is supplied you will receive information about the shortened url (`httpCode`, `url`, `hits`, `secondsUntilExpiration`, `lastUsed`), otherwise you will simply be redirected to the original url.
   
 #### Update
 *   URL: `/api/v1/`

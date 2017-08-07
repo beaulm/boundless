@@ -46,7 +46,7 @@ If a `key` is supplied you will receive information about the shortened url (`ht
 *   URL: `/api/v1/`
 *   Method: `PUT`
 *   Params: `key` (required), `name` (required), `url` (optional), `secondsUntilExpiration` (optional)
-*   Response: Whatever changed (either the `url` or the `secondsUntilExpiration`)
+*   Response: Whatever changed (either the `url` or the `secondsUntilExpiration`) and the `httpCode`
 
 `key` is the secret key you received when creating the url.  
 `name` is the short code which maps to your url.  
@@ -58,4 +58,4 @@ If a `key` is supplied you will receive information about the shortened url (`ht
 *   URL: `/api/v1/`
 *   Method: `DELETE`
 *   Params: `key` (required), `name` (required)
-*   Response: `message` containing the result of the action
+*   Response: `httpCode` and a `message` containing the result of the action

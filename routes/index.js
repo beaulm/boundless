@@ -139,12 +139,13 @@ router.get('/:name', (req, res) => {
 		let urlRecord = null;
 		try {
 			urlRecord = await db.collection('urls').find({'expirationDate': {$gte: new Date()}, 'name': req.params.name}).sort({_id: -1}).limit(1).next();
+			const secondsUntilExpiration = new Date(urlRecord.expirationDate) - new Date();
 
 			//If they included a key and it matches the one on the record we found
 			if(req.query.key && urlRecord.key === req.query.key) {
 				//Return info about the url
 				return res.status(200).send({
-					expirationDate: urlRecord.expirationDate,
+					secondsUntilExpiration,
 					hits: urlRecord.hits,
 					httpCode: 200,
 					lastUsed: urlRecord.lastUsed,

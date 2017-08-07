@@ -221,10 +221,9 @@ describe('API', function() {
 		request(options, function(error, response, body) {
 			if (error) throw new Error(error);
 
-			const {httpCode, url, expirationDate, hits, lastUsed} = JSON.parse(body);
+			const {httpCode, url, secondsUntilExpiration, hits, lastUsed} = JSON.parse(body);
 			assert.equal(httpCode, 200);
 			assert.equal(url, 'http://lynn-miller.com/');
-			assert.notEqual(Date.parse(expirationDate), NaN);
 			assert.notEqual(Date.parse(lastUsed), NaN);
 			assert.equal(hits, 1);
 

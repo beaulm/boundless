@@ -26,8 +26,8 @@ All requests and responses should be in JSON, and all responses will contain the
 *   Response: `httpCode`, `key`, `name`, `secondsUntilExpiration`
 
 `url` is the url you'd like to shorten.  
-`name` is the short code you'd like to use, if possible (an error will be returned if it's already taken).  
-`secondsUntilExpiration` is how long you'd like your short url to live for. The default is one week. 0 will create a url that won't even expire.  
+`name` is the short code you'd like to use, if possible (an error will be returned if it's already taken or doesn't comply with standard naming rules).  
+`secondsUntilExpiration` is how long you'd like your short url to live for. The default is one week. 0 will create a url that won't ever expire.  
   
 `key` is a secret code generated for this url so you can update/delete it later.  
 `name` is the shortened url code.  

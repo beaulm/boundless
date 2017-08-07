@@ -145,10 +145,10 @@ router.get('/:name', (req, res) => {
 			if(req.query.key && urlRecord.key === req.query.key) {
 				//Return info about the url
 				return res.status(200).send({
-					secondsUntilExpiration,
 					hits: urlRecord.hits,
 					httpCode: 200,
 					lastUsed: urlRecord.lastUsed,
+					secondsUntilExpiration,
 					url: urlRecord.url
 				});
 			}

@@ -1,10 +1,10 @@
 # Boundless
 A sample url shortener
 
-### Requirements
+## Requirements
 The latest version of `node.js` is required for this snazzy new URL shortener. Check out [nvm](https://github.com/creationix/nvm) for managing node version.
 
-### Installation
+## Installation
 *   Install MongoDB server and start it running on port 27017
 *   Create a `boundless` collection in Mongo
 *   Download or clone this repository
@@ -12,14 +12,11 @@ The latest version of `node.js` is required for this snazzy new URL shortener. C
 *   `npm install`
 *   `npm start`
 
-### Testing
-`npm test` will run all the integration tests.
-
-### API
+## API
 
 All requests and responses should be in JSON, and all responses will contain the HTTP status code of the response in the message body.
 
-#### Create
+### Create
 *   URL: `/api/v1/`
 *   Method: `PUT`
 *   Params: `url` (required), `name` (optional), `secondsUntilExpiration` (optional)
@@ -33,7 +30,7 @@ All requests and responses should be in JSON, and all responses will contain the
 `name` is the shortened url code.  
 `secondsUntilExpiration` is how many seconds left until the short url expires.  
 
-#### Read
+### Read
 *   URL: `/api/v1/{name}`
 *   Method: `GET`
 *   Params: `key` (optional)
@@ -42,7 +39,7 @@ All requests and responses should be in JSON, and all responses will contain the
 `name` is the short code which you got from Create.  
 If a `key` is supplied you will receive information about the shortened url (`httpCode`, `url`, `hits`, `secondsUntilExpiration`, `lastUsed`), otherwise you will simply be redirected to the original url.
   
-#### Update
+### Update
 *   URL: `/api/v1/`
 *   Method: `PUT`
 *   Params: `key` (required), `name` (required), `url` (optional), `secondsUntilExpiration` (optional)
@@ -54,8 +51,13 @@ If a `key` is supplied you will receive information about the shortened url (`ht
 `secondsUntilExpiration` is an updated expiration date.    
 
 
-#### Delete
+### Delete
 *   URL: `/api/v1/`
 *   Method: `DELETE`
 *   Params: `key` (required), `name` (required)
 *   Response: `httpCode` and a `message` containing the result of the action
+
+
+
+## Testing
+`npm test` will run all the integration tests.

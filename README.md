@@ -39,7 +39,7 @@ Example response:
 | Name | Type | Required | Example | Description |
 | ---- | ---- | -------- | ------- | ----------- |
 | `url` | String | Yes | https://www.google.com/ | The url you'd like to shorten |
-| `name` | Url string | No | short-name | The "slug" you'd like to use, if possible |
+| `name` | Url string | No | short-name | The "slug" you'd like to use, if possible. May only contain lowercase letters, numbers, and hyphens |
 | `secondsUntilExpiration` | Positive integer | No | 86400 | How many seconds until the short url expires. Default is one week. To create a url that never expires, send 0 for this parameter |
 
 #### Response

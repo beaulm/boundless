@@ -16,6 +16,21 @@ The latest version of `node.js` is required for this snazzy new URL shortener. C
 
 All requests and responses should be in JSON, and all responses will contain the HTTP status code of the response in the message body.
 
+Example creating a shortened url with cURL:
+```
+curl -X POST http://localhost:3000/api/v1/ -H 'content-type: application/x-www-form-urlencoded' -d url=https%3A%2F%2Fwww.google.com%2F
+  ```
+Example response:
+```JSON
+{
+    "httpCode": 200,
+    "key": "2a04bd8a-2e23-4587-a64f-3bf7748dc85f",
+    "name": "i4s4ju",
+    "secondsUntilExpiration": 604800
+}
+```
+  
+  
 ### Create
 *   URL: `/api/v1/`
 *   Method: `PUT`
@@ -34,7 +49,8 @@ All requests and responses should be in JSON, and all responses will contain the
 | `key` | bc07d9a3-f9e0-42c3-a3c0-05bdcca9fe4a | Keep this key secret, you'll need it to update or delete your shortened url |
 | `name` | qw6i4g | The "slug" for your short url. If no name was passed in this will be a randomly-generated, six character string, otherwise it will be the name you sent, if it's available and meets standard URL naming conventions |
 | `secondsUntilExpiration` | 86400 | How many seconds until the short url expires |
-
+  
+  
 ### Read
 *   URL: `/api/v1/{name}`
 *   Method: `GET`
@@ -57,6 +73,7 @@ All requests and responses should be in JSON, and all responses will contain the
 
 If a `key` is supplied you will receive information about the shortened url, otherwise you will simply be redirected to the original url.
   
+  
 ### Update
 *   URL: `/api/v1/`
 *   Method: `PUT`
@@ -77,7 +94,8 @@ If a `key` is supplied you will receive information about the shortened url, oth
 | `secondsUntilExpiration` | 86400 | The new number seconds until the short url expires |
 
 Only the changed data will be reported back, letting you know that your change was saved.
-
+  
+  
 ### Delete
 *   URL: `/api/v1/`
 *   Method: `DELETE`
@@ -93,7 +111,7 @@ Only the changed data will be reported back, letting you know that your change w
 | ---- | ------- | ----------- |
 | `httpCode` | 200 | The HTTP status code of your request |
 | `message` | Shortened url deleted | The result of your delete request |
-
-
+  
+  
 ## Testing
 `npm test` will run all the integration tests.
